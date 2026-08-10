@@ -8,3 +8,5 @@ tools
 optional
 modules
 instructions.md
+qmk_firmware/
+qmk_firmware.tar.gz

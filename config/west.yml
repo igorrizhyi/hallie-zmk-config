@@ -4,6 +4,8 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: splittedspace
       url-base: https://github.com/SplittedSpace
+    - name: urob
+      url-base: https://github.com/urob
 
   projects:
     - name: zmk
@@ -15,6 +17,9 @@ manifest:
       revision: main
     - name: zmk-keyboards-splittedspace
       remote: splittedspace
+      revision: main
+    - name: zmk-tri-state
+      remote: urob
       revision: main
 
   self:
