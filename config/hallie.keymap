@@ -226,7 +226,7 @@
             bindings = <
 &out OUT_BLE  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2    &bt BT_CLR   &out OUT_USB    &none        &none        &none  &none  &none  &none
 &none         &none         &none         &none           &none        &none           &none        &none        &none  &none  &none  &none
-&sys_reset    &bootloader   &none         &studio_unlock  &ind IND_ON  &ind BAT_ST     &ind IND_ON  &ind BAT_ST  &none  &none  &none  &none
+&sys_reset    &bootloader   &none         &studio_unlock  &ind IND_ON  &ind BAT_ST     &ind IND_ON  &ind BAT_ST  &none  &none  &bootloader  &sys_reset
              &none  &none  &none    &none  &none  &none
             >;
 
