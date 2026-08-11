@@ -86,18 +86,18 @@
     };
 
     macros {
-        /* Absolute OS language selection + layer switch. Requires the
-         * one-time Windows setup: Advanced keyboard settings -> Input
-         * language hot keys -> assign Ctrl+Shift+1 to English and
-         * Ctrl+Shift+2 to Ukrainian. Unlike the Alt+Shift toggle these
-         * cannot drift out of sync: each key always lands on its
-         * language no matter what state the OS is in. */
+        /* Absolute OS language selection + layer switch. Matches the
+         * hotkeys assigned in Windows "Input language hot keys":
+         * Ctrl+Shift+2 = English, Ctrl+Shift+3 = Ukrainian. Unlike the
+         * Alt+Shift toggle these cannot drift out of sync: each key
+         * always lands on its language no matter what state the OS is
+         * in. */
         to_ukr: to_ukr {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             wait-ms = <30>;
             tap-ms = <30>;
-            bindings = <&macro_tap &kp LC(LS(N2))>, <&macro_tap &to UA>;
+            bindings = <&macro_tap &kp LC(LS(N3))>, <&macro_tap &to UA>;
         };
 
         to_eng: to_eng {
@@ -105,7 +105,7 @@
             #binding-cells = <0>;
             wait-ms = <30>;
             tap-ms = <30>;
-            bindings = <&macro_tap &kp LC(LS(N1))>, <&macro_tap &to BASE>;
+            bindings = <&macro_tap &kp LC(LS(N2))>, <&macro_tap &to BASE>;
         };
     };
 
