@@ -59,21 +59,21 @@
 / {
     behaviors {
         /* Ctrl+Tab cycling: Ctrl goes down on first press and stays down
-         * across repeats; released when the layer drops or an unrelated
-         * key is pressed. Positions 13/14/16/17 (shift + both cycle keys
-         * on the nav layers) don't interrupt the cycle. */
+         * across repeats; releasing the nav-layer thumb (pos 13) or any
+         * unrelated key ends the cycle and releases Ctrl. Only the two
+         * cycle keys (14/16) and pos 17 stay transparent to the cycle. */
         swap_ct: swap_ct {
             compatible = "zmk,behavior-tri-state";
             #binding-cells = <0>;
             bindings = <&kt LCTRL>, <&kp TAB>, <&kt LCTRL>;
-            ignored-key-positions = <13 14 16 17>;
+            ignored-key-positions = <14 16 17>;
         };
 
         swap_cst: swap_cst {
             compatible = "zmk,behavior-tri-state";
             #binding-cells = <0>;
             bindings = <&kt LCTRL>, <&kp LS(TAB)>, <&kt LCTRL>;
-            ignored-key-positions = <13 14 16 17>;
+            ignored-key-positions = <14 16 17>;
         };
 
         /* Shift+. types a comma (shift suppressed), like the old QMK trick. */
@@ -86,21 +86,26 @@
     };
 
     macros {
-        /* OS language toggle (Alt+Shift, two layouts EN<->UA) + layer switch. */
+        /* Absolute OS language selection + layer switch. Requires the
+         * one-time Windows setup: Advanced keyboard settings -> Input
+         * language hot keys -> assign Ctrl+Shift+1 to English and
+         * Ctrl+Shift+2 to Ukrainian. Unlike the Alt+Shift toggle these
+         * cannot drift out of sync: each key always lands on its
+         * language no matter what state the OS is in. */
         to_ukr: to_ukr {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            wait-ms = <20>;
-            tap-ms = <20>;
-            bindings = <&macro_tap &kp LA(LSHFT)>, <&macro_tap &to UA>;
+            wait-ms = <30>;
+            tap-ms = <30>;
+            bindings = <&macro_tap &kp LC(LS(N2))>, <&macro_tap &to UA>;
         };
 
         to_eng: to_eng {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            wait-ms = <20>;
-            tap-ms = <20>;
-            bindings = <&macro_tap &kp LA(LSHFT)>, <&macro_tap &to BASE>;
+            wait-ms = <30>;
+            tap-ms = <30>;
+            bindings = <&macro_tap &kp LC(LS(N1))>, <&macro_tap &to BASE>;
         };
     };
 
