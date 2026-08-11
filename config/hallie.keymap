@@ -28,6 +28,10 @@
 #include <dt-bindings/zmk/pointing.h>
 #include <dt-bindings/zmk/indicators.h>
 
+/* Gentler scroll on the mouse layer's held scroll keys (default 10). */
+#undef ZMK_POINTING_DEFAULT_SCRL_VAL
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 4
+
 /*
  * Layer order matters: ZMK resolves overlapping active layers from the
  * highest index down, so layers reached via &mo from another layer must
@@ -77,6 +81,16 @@
             #binding-cells = <0>;
             bindings = <&kt LCTRL>, <&kp LS(TAB)>, <&kt LCTRL>;
             ignored-key-positions = <14 16 17>;
+        };
+
+        /* Right-encoder scroll, slower than the stock &scroll_u_d
+         * (5 per detent instead of 10). Tune the MOVE_Y values to
+         * taste. */
+        enc_scroll_ud: enc_scroll_ud {
+            compatible = "zmk,behavior-sensor-rotate";
+            #sensor-binding-cells = <0>;
+            tap-ms = <20>;
+            bindings = <&msc MOVE_Y(5)>, <&msc MOVE_Y(-5)>;
         };
 
         /* Inner tall thumb: hold = settings layer (bootloader combo
@@ -134,7 +148,7 @@
              &lt DESK ESC  &lt SYM DOT  &smt SET MOUSE    &lt CTL RET  &kp SPACE  &kp V
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &scroll_u_d>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &enc_scroll_ud>;
         };
 
         ua_layer {
@@ -146,7 +160,7 @@
              &lt DESK ESC  &lt UASYM FSLH  &smt SET MOUSE    &kp RET  &kp SPACE  &kp A
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &scroll_u_d>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &enc_scroll_ud>;
         };
 
         sym_layer {
