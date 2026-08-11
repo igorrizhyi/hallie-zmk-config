@@ -130,7 +130,7 @@
             bindings = <
 &kp UP     &sk LCTRL  &kp A  &kp SQT  &kp P  &kp Y    &kp F  &kp K  &kp G  &kp R  &kp CAPS  &kp TAB
 &kp LSHFT  &mo NAV    &kp O  &kp E    &kp I  &kp U    &kp D  &kp H  &kp T  &kp N  &kp S     &kp RSHFT
-&kp LALT   &sk LGUI   &kp X  &kp C    &kp J  &kp Z    &kp B  &kp M  &kp W  &kp L  &kp Q     &sk LCTRL
+&kp LALT   &kp LALT   &kp X  &kp C    &kp J  &kp Z    &kp B  &kp M  &kp W  &kp L  &kp Q     &sk LCTRL
              &lt DESK ESC  &lt SYM DOT  &smt SET MOUSE    &lt CTL RET  &kp SPACE  &kp V
             >;
 
