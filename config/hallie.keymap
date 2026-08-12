@@ -32,7 +32,7 @@
  * Do not go below ~6: the per-tick movement rounds down to zero and
  * scrolling dies entirely. */
 #undef ZMK_POINTING_DEFAULT_SCRL_VAL
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 6
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 8
 
 /*
  * Layer order matters: ZMK resolves overlapping active layers from the
