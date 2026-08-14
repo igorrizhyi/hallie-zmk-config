@@ -81,14 +81,14 @@
         swap_ct: swap_ct {
             compatible = "zmk,behavior-tri-state";
             #binding-cells = <0>;
-            bindings = <&kt LCTRL>, <&kp TAB>, <&kt LCTRL>;
+            bindings = <&kt LCTRL>, <&dl_tab_ctl>, <&kt LCTRL>;
             ignored-key-positions = <14 16 17>;
         };
 
         swap_cst: swap_cst {
             compatible = "zmk,behavior-tri-state";
             #binding-cells = <0>;
-            bindings = <&kt LCTRL>, <&kp LS(TAB)>, <&kt LCTRL>;
+            bindings = <&kt LCTRL>, <&dl_stab_ctl>, <&kt LCTRL>;
             ignored-key-positions = <14 16 17>;
         };
 
@@ -109,7 +109,7 @@
         swap_at: swap_at {
             compatible = "zmk,behavior-tri-state";
             #binding-cells = <0>;
-            bindings = <&kt LALT>, <&kp TAB>, <&kt LALT>;
+            bindings = <&kt LALT>, <&dl_tab_alt>, <&kt LALT>;
         };
 
         /* Shift+. types a comma (shift suppressed), like the old QMK trick. */
@@ -145,6 +145,45 @@
          * Alt+Shift toggle these cannot drift out of sync: each key
          * always lands on its language no matter what state the OS is
          * in. */
+        /* RDP-friendly Tab presses for the swappers: re-assert the
+         * modifier, wait 40 ms, then press Tab (held until the physical
+         * key is released, so holding still auto-repeats). Laggy hosts
+         * otherwise process Tab before they register the modifier. */
+        dl_tab_alt: dl_tab_alt {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <40>;
+            bindings
+                = <&macro_press &kp LALT>
+                , <&macro_press &kp TAB>
+                , <&macro_pause_for_release>
+                , <&macro_release &kp TAB>;
+        };
+
+        dl_tab_ctl: dl_tab_ctl {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <40>;
+            bindings
+                = <&macro_press &kp LCTRL>
+                , <&macro_press &kp TAB>
+                , <&macro_pause_for_release>
+                , <&macro_release &kp TAB>;
+        };
+
+        dl_stab_ctl: dl_stab_ctl {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <40>;
+            bindings
+                = <&macro_press &kp LCTRL>
+                , <&macro_press &kp LSHFT>
+                , <&macro_press &kp TAB>
+                , <&macro_pause_for_release>
+                , <&macro_release &kp TAB>
+                , <&macro_release &kp LSHFT>;
+        };
+
         /* Human-paced chords: mods land well before the digit and are
          * released well after, so laggy hosts (RDP) can't miss the
          * modifier state the way they do with a single-report chord. */
