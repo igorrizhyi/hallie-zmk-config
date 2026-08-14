@@ -92,8 +92,9 @@
             ignored-key-positions = <14 16 17>;
         };
 
-        /* Inner tall thumb: hold = settings layer (bootloader combo
-         * unchanged), tap = toggle the mouse layer on/off. */
+        /* Inner tall thumb: hold = mouse layer while held (original QMK
+         * feel), tap = toggle the mouse layer on/off. The settings
+         * layer moved to the two-thumb chord defined in combos below. */
         smt: smt {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
@@ -108,6 +109,23 @@
             #binding-cells = <0>;
             bindings = <&kp DOT>, <&kp COMMA>;
             mods = <(MOD_LSFT|MOD_RSFT)>;
+        };
+    };
+
+    combos {
+        compatible = "zmk,combos";
+
+        /* Settings layer: hold BOTH tall inner thumb keys (positions
+         * 38 + 39). While held, the settings layer is active — tap the
+         * documented keys for BT channels, bootloader (Z position =
+         * left half, / position on the right half = right half), etc.
+         * require-prior-idle prevents accidental triggers when rolling
+         * Enter into the mouse thumb during normal typing. */
+        combo_settings {
+            timeout-ms = <40>;
+            key-positions = <38 39>;
+            bindings = <&mo SET>;
+            require-prior-idle-ms = <100>;
         };
     };
 
@@ -159,7 +177,7 @@
 &kp UP     &sk LCTRL  &kp A  &kp SQT  &kp P  &kp Y    &kp F  &kp K  &kp G  &kp R  &kp CAPS  &kp TAB
 &kp LSHFT  &mo NAV    &kp O  &kp E    &kp I  &kp U    &kp D  &kp H  &kp T  &kp N  &kp S     &kp RSHFT
 &kp LALT   &kp LALT   &kp X  &kp C    &kp J  &kp Z    &kp B  &kp M  &kp W  &kp L  &kp Q     &sk LCTRL
-             &lt DESK ESC  &lt SYM DOT  &smt SET MOUSE    &lt CTL RET  &kp SPACE  &kp V
+             &lt DESK ESC  &lt SYM DOT  &smt MOUSE MOUSE    &lt CTL RET  &kp SPACE  &kp V
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &scroll_u_d>;
@@ -171,7 +189,7 @@
 &to BASE   &kp Q      &kp W  &kp E  &kp R  &kp T    &kp Y  &kp U  &kp I      &kp O    &kp P     &kp LBKT
 &kp LSHFT  &mo UANAV  &kp S  &kp D  &kp F  &kp G    &kp H  &kp J  &kp K      &kp L    &kp SEMI  &kp LSHFT
 &kp LALT   &kp Z      &kp X  &kp C  &kp V  &kp B    &kp N  &kp M  &kp COMMA  &kp DOT  &kp SQT   &none
-             &lt DESK ESC  &lt UASYM FSLH  &smt SET MOUSE    &kp RET  &kp SPACE  &kp A
+             &lt DESK ESC  &lt UASYM FSLH  &smt MOUSE MOUSE    &kp RET  &kp SPACE  &kp A
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &scroll_u_d>;
