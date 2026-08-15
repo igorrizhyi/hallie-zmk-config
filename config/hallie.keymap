@@ -145,41 +145,47 @@
          * Alt+Shift toggle these cannot drift out of sync: each key
          * always lands on its language no matter what state the OS is
          * in. */
-        /* RDP-friendly Tab presses for the swappers: re-assert the
-         * modifier, wait 40 ms, press Tab, hold 40 ms, release. Fully
-         * self-contained per press — no pause-for-release, which would
-         * deadlock the shared behavior queue on taps faster than the
-         * pacing (Alt then stays stuck held). One press = one step. */
+        /* RDP-friendly Tab presses for the swappers: hold the modifier
+         * an extra 40 ms before Tab so laggy hosts register it first.
+         *
+         * Every modifier press here MUST have a matching release in the
+         * same macro: ZMK refcounts modifier presses and only releases
+         * one when the count hits zero, while the swapper's end
+         * behavior decrements it exactly once. An unbalanced press
+         * leaks a count per tap and the modifier stays stuck down. */
         dl_tab_alt: dl_tab_alt {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             wait-ms = <40>;
+            tap-ms = <10>;
             bindings
                 = <&macro_press &kp LALT>
-                , <&macro_press &kp TAB>
-                , <&macro_release &kp TAB>;
+                , <&macro_tap &kp TAB>
+                , <&macro_release &kp LALT>;
         };
 
         dl_tab_ctl: dl_tab_ctl {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             wait-ms = <40>;
+            tap-ms = <10>;
             bindings
                 = <&macro_press &kp LCTRL>
-                , <&macro_press &kp TAB>
-                , <&macro_release &kp TAB>;
+                , <&macro_tap &kp TAB>
+                , <&macro_release &kp LCTRL>;
         };
 
         dl_stab_ctl: dl_stab_ctl {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             wait-ms = <40>;
+            tap-ms = <10>;
             bindings
                 = <&macro_press &kp LCTRL>
                 , <&macro_press &kp LSHFT>
-                , <&macro_press &kp TAB>
-                , <&macro_release &kp TAB>
-                , <&macro_release &kp LSHFT>;
+                , <&macro_tap &kp TAB>
+                , <&macro_release &kp LSHFT>
+                , <&macro_release &kp LCTRL>;
         };
 
         /* Human-paced chords: mods land well before the digit and are
