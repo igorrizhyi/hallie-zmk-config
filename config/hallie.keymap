@@ -34,6 +34,12 @@
 #undef ZMK_POINTING_DEFAULT_SCRL_VAL
 #define ZMK_POINTING_DEFAULT_SCRL_VAL 8
 
+/* Cursor speed, doubled from ZMK's default 600 units/s. The 300 ms
+ * exponent-1 acceleration ramp is unchanged, so short taps still move
+ * only a few pixels — this raises the top speed, not the starting one. */
+#undef ZMK_POINTING_DEFAULT_MOVE_VAL
+#define ZMK_POINTING_DEFAULT_MOVE_VAL 1200
+
 /*
  * Layer order matters: ZMK resolves overlapping active layers from the
  * highest index down, so layers reached via &mo from another layer must
@@ -233,7 +239,12 @@
          * cursor session on F23 and closes it on F24 — phantom keys that
          * it grabs as global hotkeys, so no application ever sees them.
          *
-         * Hold path: F23, hold the layer, F24 on release.
+         * The LAYER CHANGE MUST COME FIRST in every one of these: ZMK
+         * macros default to a 30 ms tap plus a 15 ms wait, so signalling
+         * first left ~50 ms in which the user's movement keys still
+         * resolved on the base layer and typed letters instead.
+         *
+         * Hold path: hold the layer, F23, F24 on release.
          * Toggle path: a macro cannot branch on state, so entry and exit
          * are two different bindings — tog_on_sig sits on the base layers
          * and tog_off_sig on the mouse layer's own thumb key, which makes
@@ -241,10 +252,11 @@
         mo_sig: mo_sig {
             compatible = "zmk,behavior-macro-one-param";
             #binding-cells = <1>;
+            wait-ms = <5>;
             bindings
-                = <&macro_tap &kp F23>
-                , <&macro_param_1to1>
+                = <&macro_param_1to1>
                 , <&macro_press &mo MACRO_PLACEHOLDER>
+                , <&macro_tap &kp F23>
                 , <&macro_pause_for_release>
                 , <&macro_param_1to1>
                 , <&macro_release &mo MACRO_PLACEHOLDER>
@@ -254,15 +266,17 @@
         tog_on_sig: tog_on_sig {
             compatible = "zmk,behavior-macro-one-param";
             #binding-cells = <1>;
+            wait-ms = <5>;
             bindings
-                = <&macro_tap &kp F23>
-                , <&macro_param_1to1>
-                , <&macro_tap &tog MACRO_PLACEHOLDER>;
+                = <&macro_param_1to1>
+                , <&macro_tap &tog MACRO_PLACEHOLDER>
+                , <&macro_tap &kp F23>;
         };
 
         tog_off_sig: tog_off_sig {
             compatible = "zmk,behavior-macro-one-param";
             #binding-cells = <1>;
+            wait-ms = <5>;
             bindings
                 = <&macro_param_1to1>
                 , <&macro_tap &tog MACRO_PLACEHOLDER>
@@ -452,3 +466,4 @@
         extra2 { status = "reserved"; };
     };
 };
+
