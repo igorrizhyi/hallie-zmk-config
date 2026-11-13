@@ -33,7 +33,7 @@
  * Do not go below ~6: the per-tick movement rounds down to zero and
  * scrolling dies entirely. */
 #undef ZMK_POINTING_DEFAULT_SCRL_VAL
-#define ZMK_POINTING_DEFAULT_SCRL_VAL 8
+#define ZMK_POINTING_DEFAULT_SCRL_VAL 16
 
 /* Cursor speed, doubled from ZMK's default 600 units/s. The 300 ms
  * exponent-1 acceleration ramp is unchanged, so short taps still move
@@ -74,11 +74,12 @@
 &mt { quick-tap-ms = <200>; };
 
 / {
-    /* Half the stock 18: the encoder fires one (stock-strength) scroll
-     * event per two detents — half speed without touching the fragile
-     * per-event value. */
+    /* Back to the hardware's 18 detents so the encoder emits twice as
+     * many steps; the scroll scaler at the bottom of this file halves
+     * each one, so overall speed is unchanged but the movement is
+     * finer-grained instead of jumping in big notches. */
     sensors {
-        triggers-per-rotation = <9>;
+        triggers-per-rotation = <18>;
     };
 
     behaviors {
@@ -444,9 +445,9 @@
         mouse_layer {
             display-name = "Mouse";
             bindings = <
-&none  &none  &none           &mmv MOVE_UP    &none            &none    &none      &msc SCRL_LEFT  &msc SCRL_RIGHT  &none         &none      &none
-&none  &none  &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &none    &mkp MCLK  &msc SCRL_DOWN  &mkp LCLK        &msc SCRL_UP  &mkp RCLK  &mkp MCLK
-&none  &none  &none           &none           &none            &none    &none      &none           &none            &none         &none      &none
+&none  &none  &none           &mmv MOVE_UP    &none            &none    &none           &none           &kp F20    &none         &none            &none
+&none  &none  &mmv MOVE_LEFT  &mmv MOVE_DOWN  &mmv MOVE_RIGHT  &none    &mkp MCLK       &kp F19         &mkp LCLK  &kp F22       &mkp RCLK        &mkp MCLK
+&none  &none  &none           &none           &none            &none    &msc SCRL_LEFT  &msc SCRL_DOWN  &kp F21    &msc SCRL_UP  &msc SCRL_RIGHT  &none
              &trans  &trans  &tog_off_sig MOUSE    &mkp LCLK  &mkp RCLK  &mo FAST
             >;
         };
@@ -494,4 +495,13 @@
         layers = <FAST>;
         input-processors = <&zip_xy_scaler 2 1>;
     };
+};
+
+/* Halve every scroll event, encoder and keys alike. The scaler carries
+ * remainders, so nothing is lost to rounding the way a smaller per-event
+ * value would be. The key scroll source value above is doubled to
+ * compensate, leaving key scrolling exactly as it was and only the
+ * encoder's steps smaller. */
+&msc_input_listener {
+    input-processors = <&zip_scroll_scaler 1 2>;
 };
