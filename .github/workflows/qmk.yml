@@ -36,14 +36,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      # Ubuntu's gcc-arm-none-eabi is 14.x. QMK 0.22 expects ~10, and
-      # newer ARM GCC is known to build QMK firmware that compiles,
-      # links and flashes cleanly but does not run. Pin the version QMK
-      # itself ships in its CI container.
-      - name: ARM toolchain 10.3
-        uses: carlosperate/arm-none-eabi-gcc-action@v1
-        with:
-          release: '10.3-2021.10'
+      # Igor's working firmware was linked against gcc-arm-none-eabi
+      # 14.2.0 (per the .map left in his local .build), so use Ubuntu's
+      # toolchain to match the environment that is known to produce
+      # firmware this board actually runs.
+      - name: ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi binutils-arm-none-eabi \
+            libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
 
       - name: Confirm toolchain version
         run: arm-none-eabi-gcc --version | head -1
