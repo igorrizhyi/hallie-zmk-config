@@ -505,3 +505,11 @@
 &msc_input_listener {
     input-processors = <&zip_scroll_scaler 1 2>;
 };
+
+/* Longer debounce than the 5 ms default: a phantom read lasting a scan
+ * cycle or two is now filtered out instead of being reported as a
+ * keypress. Costs a few ms of latency, imperceptible when typing. */
+&kscan0 {
+    debounce-press-ms = <8>;
+    debounce-release-ms = <8>;
+};
