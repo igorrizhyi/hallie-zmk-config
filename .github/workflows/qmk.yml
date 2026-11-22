@@ -2,6 +2,11 @@ name: QMK (TBK Mini)
 
 # The Hallie layout, built for the wired TBK Mini as a fallback board.
 # Runs only when the QMK sources change; the ZMK build is untouched.
+#
+# Deliberately not using the qmk_cli container: it ships a current CLI
+# whose Python dependencies no longer match QMK 0.22.x, which is the
+# version this keymap targets. Installing the toolchain ourselves keeps
+# every version pinned and the failure modes obvious.
 on:
   push:
     paths:
@@ -9,24 +14,40 @@ on:
       - '.github/workflows/qmk.yml'
   workflow_dispatch:
 
+env:
+  QMK_TAG: '0.22.14'
+  TARGET: 'bastardkb/tbkmini/v2/splinky_3'
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/qmk/qmk_cli
 
     steps:
       - name: Checkout this config
         uses: actions/checkout@v4
 
-      - name: Allow git in the container
-        run: git config --global --add safe.directory '*'
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Fetch QMK 0.22.14
+      - name: ARM toolchain
         run: |
-          git clone --depth 1 --branch 0.22.14 \
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi binutils-arm-none-eabi \
+            libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+      - name: Fetch QMK ${{ env.QMK_TAG }}
+        run: |
+          git clone --depth 1 --branch "$QMK_TAG" \
             https://github.com/qmk/qmk_firmware.git qmk_firmware
           cd qmk_firmware
-          make git-submodule
+          git submodule update --init --recursive --depth 1 \
+            lib/chibios lib/chibios-contrib lib/pico-sdk lib/printf
+
+      - name: QMK python requirements
+        run: python -m pip install -r qmk_firmware/requirements.txt
 
       - name: Install the keymap
         run: |
@@ -35,10 +56,10 @@ jobs:
              qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/hallie/
 
       - name: Compile
-        working-directory: qmk_firmware
         run: |
-          qmk config user.qmk_home="$PWD"
-          qmk compile -kb bastardkb/tbkmini/v2/splinky_3 -km hallie
+          # The repo ships its own CLI in bin/, matched to this QMK version.
+          export PATH="$GITHUB_WORKSPACE/qmk_firmware/bin:$PATH"
+          make -C qmk_firmware "${TARGET}:hallie"
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
