@@ -62,7 +62,11 @@ jobs:
       - name: Compile
         env:
           QMK_HOME: ${{ github.workspace }}/qmk_firmware
-        run: qmk compile -kb "$TARGET" -km hallie
+        run: |
+          # ld writes the elf into a nested path under .build that this
+          # QMK version does not create itself, so make it up front.
+          mkdir -p "qmk_firmware/.build/$(dirname "$TARGET")"
+          qmk compile -kb "$TARGET" -km hallie
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
@@ -71,5 +75,5 @@ jobs:
           path: |
             qmk_firmware/*.uf2
             qmk_firmware/*.hex
-            qmk_firmware/.build/*.uf2
+            qmk_firmware/.build/**/*.uf2
           if-no-files-found: error
