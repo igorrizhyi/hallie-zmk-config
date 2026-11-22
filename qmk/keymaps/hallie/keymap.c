@@ -7,6 +7,7 @@
 // holds QMK's bootloader/reset instead of BT profiles.
 
 #include QMK_KEYBOARD_H
+#include "mousekey.h"   // mk_max_speed, for the R3 cursor boost
 
 enum layers {
     BASE, UA, SYM, UASYM, NAV, UANAV, NUM, UANUM, DESK, CTL, ALTL, MOUSE, SET
@@ -20,7 +21,21 @@ enum custom_keycodes {
     SWAP_AT,              // Alt+Tab, Alt held across presses
     DOT_COM,              // types . ; with shift held types , instead
     MOU_SMT,              // hold = mouse layer, tap = toggle mouse layer
+    MOU_FST,              // held: cursor at 2x, mirroring the Hallie FAST layer
 };
+
+// Cursor speeds, in "units per report" (see config.h for the arithmetic).
+// The Hallie boosts with &zip_xy_scaler 2 1 on its FAST layer, i.e. exactly
+// x2, so the boost here doubles mk_max_speed rather than using KC_ACL2.
+// KC_ACL2 computes MOUSEKEY_MOVE_DELTA * mk_max_speed, which IS the sustained
+// top speed, so it gave no boost at all -- only an instant jump to max.
+#define MOU_SPEED_BASE 24        // 1500 units/s
+#define MOU_SPEED_FAST 48        // 3000 units/s
+
+// MOU_SPEED_BASE restores the resting speed, so it has to stay equal to the
+// value config.h compiled in; catch any future drift at build time.
+_Static_assert(MOU_SPEED_BASE == MOUSEKEY_MAX_SPEED,
+               "MOU_SPEED_BASE must match MOUSEKEY_MAX_SPEED in config.h");
 
 #define CAD LCTL(LALT(KC_DEL))   // local machine security screen
 #define CAE LCTL(LALT(KC_END))   // the same screen inside an RDP session
@@ -102,6 +117,12 @@ layer_state_t layer_state_set_user(layer_state_t state) {
         mouse_was_on = mouse_is_on;
     }
 
+    // R3 can still be down when the layer is released, which would leave
+    // the pointer stuck at 2x on the next activation.
+    if (!mouse_is_on) {
+        mk_max_speed = MOU_SPEED_BASE;
+    }
+
     // Leaving a swapper's layer commits the selection.
     if (!layer_state_cmp(state, NAV) && !layer_state_cmp(state, UANAV)) {
         swap_end(&ctl_swap_active, KC_LCTL);
@@ -115,6 +136,10 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case MOU_FST:
+            mk_max_speed = record->event.pressed ? MOU_SPEED_FAST : MOU_SPEED_BASE;
+            return false;
+
         case TO_UKR:
             if (record->event.pressed) {
                 send_lang(KC_3);
@@ -257,7 +282,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_NO, KC_NO, KC_NO,   KC_MS_U, KC_NO,   KC_NO,             KC_NO,   KC_NO,   KC_F20,  KC_NO,   KC_NO,   KC_NO,
         KC_NO, KC_NO, KC_MS_L, KC_MS_D, KC_MS_R, KC_NO,             KC_BTN3, KC_F19,  KC_BTN1, KC_F22,  KC_BTN2, KC_BTN3,
         KC_NO, KC_NO, KC_NO,   KC_NO,   KC_NO,   KC_NO,             KC_WH_L, KC_WH_D, KC_F21,  KC_WH_U, KC_WH_R, KC_NO,
-                              KC_TRNS, KC_TRNS, KC_TRNS,            KC_BTN1, KC_BTN2, KC_ACL2),
+                              KC_TRNS, KC_TRNS, KC_TRNS,            KC_BTN1, KC_BTN2, MOU_FST),
 
     // Wired board: no Bluetooth profiles or output switching to keep.
     [SET] = LAYOUT_split_3x6_3(

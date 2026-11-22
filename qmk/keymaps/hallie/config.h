@@ -24,12 +24,26 @@
 #undef MOUSEKEY_MAX_SPEED
 #undef MOUSEKEY_TIME_TO_MAX
 
-// Mouse movement tuned to the Hallie: 1200 units/s top speed reached over
-// roughly 300 ms, reported every 16 ms.
+// Matched to the Hallie's pointer. ZMK moves at ZMK_POINTING_DEFAULT_MOVE_VAL
+// = 1200 units/s; QMK's accelerated mode tops out at
+//     MOUSEKEY_MOVE_DELTA * mk_max_speed   units per report
+// clamped to 127, one report every MOUSEKEY_INTERVAL ms. So:
+//     1 * 24 units / 16 ms = 1500 units/s
+// which is the Hallie's speed plus the small bias Igor asked for.
+//
+// MOVE_DELTA is deliberately 1 rather than QMK's default 8: with 8 the only
+// way to reach 24 is max_speed 3, which gives a coarse three-step ramp and a
+// 500 units/s floor. At 1 the ramp has 24 steps and starts at 62 units/s,
+// which is much closer to ZMK's exponent-1 curve starting near zero.
+//
+// The previous values (DELTA 8 defaulted in, max_speed 19) computed to 152,
+// clamped to 127 = 7937 units/s: 6.6x the Hallie, and the clamp made every
+// max_speed >= 16 behave identically.
 #define MOUSEKEY_DELAY          0
-#define MOUSEKEY_INTERVAL       16
-#define MOUSEKEY_MAX_SPEED      19
-#define MOUSEKEY_TIME_TO_MAX    19
+#define MOUSEKEY_INTERVAL       16      // 62.5 reports/s
+#define MOUSEKEY_MOVE_DELTA     1
+#define MOUSEKEY_MAX_SPEED      24      // -> 1500 units/s
+#define MOUSEKEY_TIME_TO_MAX    16      // 16 reports = 256 ms ramp
 
 #undef MOUSEKEY_WHEEL_DELAY
 #undef MOUSEKEY_WHEEL_INTERVAL
