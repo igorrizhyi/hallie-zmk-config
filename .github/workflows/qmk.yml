@@ -68,6 +68,25 @@ jobs:
           python -m pip install 'qmk==1.1.6'
           python -m pip install -r qmk_firmware/requirements.txt
 
+      # The fork's committed splinky_3 definition does NOT match Igor's
+      # board. His local tree carries three never-committed corrections,
+      # and without them the firmware boots but scans a matrix that is
+      # not there -- every key dead on both halves:
+      #   handedness      MASTER_RIGHT -> MASTER_LEFT
+      #   diode direction ROW2COL      -> COL2ROW
+      #   matrix rows     GP26,GP5,GP4,GP9 -> GP29,GP26,GP5,GP4
+      # plus MOUSEKEY_ENABLE, which his keymap needs.
+      - name: Apply board corrections
+        run: |
+          cp -rv qmk/boards/* qmk_firmware/keyboards/
+          echo "--- verifying the corrections landed ---"
+          b=qmk_firmware/keyboards/bastardkb/tbkmini/v2/splinky_3
+          grep -q '^#define MASTER_LEFT'            "$b/config.h"
+          grep -q '^#define DIODE_DIRECTION COL2ROW' "$b/config.h"
+          grep -q 'GP29", "GP26", "GP5", "GP4'      "$b/info.json"
+          grep -q '^MOUSEKEY_ENABLE = yes'          "$b/rules.mk"
+          echo "all four confirmed"
+
       - name: Install the keymaps
         run: |
           for km in qmk/keymaps/*/; do
