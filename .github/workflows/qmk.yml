@@ -58,16 +58,29 @@ jobs:
           python -m pip install 'qmk==1.1.6'
           python -m pip install -r qmk_firmware/requirements.txt
 
-      - name: Install the keymap
+      - name: Install the keymaps
         run: |
-          mkdir -p qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/hallie
-          cp qmk/keymaps/hallie/* \
-             qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/hallie/
+          for km in qmk/keymaps/*/; do
+            name=$(basename "$km")
+            mkdir -p "qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/$name"
+            cp "$km"* "qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/$name/"
+          done
+          ls qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/
 
-      - name: Compile
+      # legacy is Igor's own known-good keymap, built here as a control:
+      # if CI cannot produce working firmware from source that works
+      # locally, the fault is the build, not the keymap.
+      - name: Compile every keymap
         env:
           QMK_HOME: ${{ github.workspace }}/qmk_firmware
-        run: qmk compile -kb "$QMK_KB" -km hallie
+        run: |
+          for km in qmk/keymaps/*/; do
+            name=$(basename "$km")
+            echo "::group::$name"
+            qmk compile -kb "$QMK_KB" -km "$name"
+            echo "::endgroup::"
+          done
+          ls -l qmk_firmware/*.uf2
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
