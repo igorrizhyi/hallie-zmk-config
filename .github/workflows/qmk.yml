@@ -15,7 +15,12 @@ on:
   workflow_dispatch:
 
 env:
-  QMK_TAG: '0.22.14'
+  # BastardKB maintain their own QMK fork, and their board definitions
+  # differ from upstream's. Firmware built from upstream qmk/qmk_firmware
+  # compiles and flashes but does not run on this hardware. This is the
+  # exact commit Igor's working local tree is based on.
+  QMK_REPO: 'https://github.com/Bastardkb/bastardkb-qmk.git'
+  QMK_SHA: 'ac18912dea49920ecab3f9f339ea7b78c1965e1e'
   QMK_KB: 'bastardkb/tbkmini/v2/splinky_3'   # not TARGET: QMK's Makefile uses that name
 
 jobs:
@@ -43,13 +48,16 @@ jobs:
       - name: Confirm toolchain version
         run: arm-none-eabi-gcc --version | head -1
 
-      - name: Fetch QMK ${{ env.QMK_TAG }}
+      - name: Fetch BastardKB QMK
         run: |
-          git clone --depth 1 --branch "$QMK_TAG" \
-            https://github.com/qmk/qmk_firmware.git qmk_firmware
+          git init qmk_firmware
           cd qmk_firmware
+          git remote add origin "$QMK_REPO"
+          git fetch --depth 1 origin "$QMK_SHA"
+          git checkout FETCH_HEAD
           git submodule update --init --recursive --depth 1 \
             lib/chibios lib/chibios-contrib lib/pico-sdk lib/printf
+          git log -1 --format='built from %H'
 
       - name: QMK CLI and python requirements
         run: |
