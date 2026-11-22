@@ -1,0 +1,50 @@
+name: QMK (TBK Mini)
+
+# The Hallie layout, built for the wired TBK Mini as a fallback board.
+# Runs only when the QMK sources change; the ZMK build is untouched.
+on:
+  push:
+    paths:
+      - 'qmk/**'
+      - '.github/workflows/qmk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+
+    steps:
+      - name: Checkout this config
+        uses: actions/checkout@v4
+
+      - name: Allow git in the container
+        run: git config --global --add safe.directory '*'
+
+      - name: Fetch QMK 0.22.14
+        run: |
+          git clone --depth 1 --branch 0.22.14 \
+            https://github.com/qmk/qmk_firmware.git qmk_firmware
+          cd qmk_firmware
+          make git-submodule
+
+      - name: Install the keymap
+        run: |
+          mkdir -p qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/hallie
+          cp qmk/keymaps/hallie/* \
+             qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/hallie/
+
+      - name: Compile
+        working-directory: qmk_firmware
+        run: |
+          qmk config user.qmk_home="$PWD"
+          qmk compile -kb bastardkb/tbkmini/v2/splinky_3 -km hallie
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: tbkmini-hallie-firmware
+          path: |
+            qmk_firmware/*.uf2
+            qmk_firmware/*.hex
+          if-no-files-found: error
