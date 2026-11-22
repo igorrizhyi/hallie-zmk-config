@@ -46,8 +46,12 @@ jobs:
           git submodule update --init --recursive --depth 1 \
             lib/chibios lib/chibios-contrib lib/pico-sdk lib/printf
 
-      - name: QMK python requirements
-        run: python -m pip install -r qmk_firmware/requirements.txt
+      - name: QMK CLI and python requirements
+        run: |
+          # 0.22.x ships no bundled CLI, so take a contemporary one from
+          # PyPI together with the tree's own pinned dependencies.
+          python -m pip install 'qmk==1.1.6'
+          python -m pip install -r qmk_firmware/requirements.txt
 
       - name: Install the keymap
         run: |
@@ -56,10 +60,9 @@ jobs:
              qmk_firmware/keyboards/bastardkb/tbkmini/keymaps/hallie/
 
       - name: Compile
-        run: |
-          # The repo ships its own CLI in bin/, matched to this QMK version.
-          export PATH="$GITHUB_WORKSPACE/qmk_firmware/bin:$PATH"
-          make -C qmk_firmware "${TARGET}:hallie"
+        env:
+          QMK_HOME: ${{ github.workspace }}/qmk_firmware
+        run: qmk compile -kb "$TARGET" -km hallie
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
@@ -68,4 +71,5 @@ jobs:
           path: |
             qmk_firmware/*.uf2
             qmk_firmware/*.hex
+            qmk_firmware/.build/*.uf2
           if-no-files-found: error
