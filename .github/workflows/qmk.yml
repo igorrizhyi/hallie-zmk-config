@@ -16,7 +16,7 @@ on:
 
 env:
   QMK_TAG: '0.22.14'
-  TARGET: 'bastardkb/tbkmini/v2/splinky_3'
+  QMK_KB: 'bastardkb/tbkmini/v2/splinky_3'   # not TARGET: QMK's Makefile uses that name
 
 jobs:
   build:
@@ -62,11 +62,7 @@ jobs:
       - name: Compile
         env:
           QMK_HOME: ${{ github.workspace }}/qmk_firmware
-        run: |
-          # ld writes the elf into a nested path under .build that this
-          # QMK version does not create itself, so make it up front.
-          mkdir -p "qmk_firmware/.build/$(dirname "$TARGET")"
-          qmk compile -kb "$TARGET" -km hallie
+        run: qmk compile -kb "$QMK_KB" -km hallie
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
@@ -75,5 +71,4 @@ jobs:
           path: |
             qmk_firmware/*.uf2
             qmk_firmware/*.hex
-            qmk_firmware/.build/**/*.uf2
           if-no-files-found: error
