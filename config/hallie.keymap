@@ -118,7 +118,12 @@
         swap_at: swap_at {
             compatible = "zmk,behavior-tri-state";
             #binding-cells = <0>;
-            bindings = <&alt_dn>, <&tab_tap>, <&alt_up>;
+            bindings = <&alt_dn>, <&tab_tap_fast>, <&alt_up>;
+        };
+        swap_at_rdp: swap_at_rdp {
+            compatible = "zmk,behavior-tri-state";
+            #binding-cells = <0>;
+            bindings = <&alt_dn_rdp>, <&tab_tap>, <&alt_up>;
         };
 
         /* Shift+. types a comma (shift suppressed), like the old QMK trick. */
@@ -160,7 +165,18 @@
          * the failures down but did not eliminate them; 90 ms is the
          * current setting. tab_tap's trailing wait-ms keeps the
          * modifier release out of the same input batch as the Tab. */
+        // Alt goes down this long before Tab. 15 ms keeps a quick tap's
+        // total Alt-down time under the ~100 ms the Windows switcher needs
+        // to paint, so a flip between two tasks is silent while HOLDING the
+        // key still raises the previews. The 90 ms sibling is the RDP-safe
+        // pacing: visible blink, but a laggy host cannot see Tab first.
         alt_dn: alt_dn {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            wait-ms = <15>;
+            bindings = <&macro_press &kp LALT>;
+        };
+        alt_dn_rdp: alt_dn_rdp {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
             wait-ms = <90>;
@@ -192,6 +208,15 @@
             #binding-cells = <0>;
             tap-ms = <30>;
             wait-ms = <40>;
+            bindings = <&macro_tap &kp TAB>;
+        };
+        // 15 + 15 + 10 = 40 ms, against tab_tap's 30 + 40 on top of a 90 ms
+        // lead. The tail matters: Alt cannot lift until the macro finishes.
+        tab_tap_fast: tab_tap_fast {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            tap-ms = <15>;
+            wait-ms = <10>;
             bindings = <&macro_tap &kp TAB>;
         };
 
@@ -416,7 +441,7 @@
             display-name = "Desk";
             bindings = <
 &none      &mkp MCLK   &kp LG(N2)  &kp LG(N3)  &kp LG(N4)  &kp LG(N5)    &kp LG(N6)  &kp LG(N7)    &kp LG(N8)    &kp LC(N9)  &none          &none
-&kp LSHFT  &kp LG(N1)  &kp LG(N0)  &swap_at    &kp LG(W)   &kp LG(N6)    &kp LG(N1)  &kp LA(H)     &kp LA(W)     &kp LA(L)   &kp LG(N5)     &none
+&kp LSHFT  &kp LG(N1)  &kp LG(N0)  &swap_at_rdp  &kp LG(W)   &kp LG(N6)    &kp LG(N1)  &kp LA(H)     &kp LA(W)     &kp LA(L)   &kp LG(N5)     &none
 &none      &none       &kp LG(E)   &swap_at    &kp LG(J)   &kp LG(N7)    &kp LG(N6)  &kp C_VOL_DN  &kp C_VOL_UP  &kp LA(L)   &kp LA(COMMA)  &none
              &kp LG(D)  &kp LG(A)  &kp LG(D)    &sk LSHFT  &kp LA(A)  &kp DEL
             >;
