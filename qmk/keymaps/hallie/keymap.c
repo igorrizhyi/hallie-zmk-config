@@ -52,7 +52,7 @@ _Static_assert(MOU_SPEED_BASE == MOUSEKEY_MAX_SPEED,
 // The modifier leads Tab by 90 ms so a laggy host cannot see Tab first.
 // Shortening this does NOT hide the Windows switcher: it paints on the Tab
 // press itself, not after a delay (tested at 15 ms, still blinked). The
-// silent flip is KC_F18 instead -- see the DESK layer.
+// silent flip is KC_F18 on the DESK home row instead.
 #define SWAP_LEAD_RDP_MS  90
 #define SWAP_TAB_RDP_MS   30
 
@@ -269,8 +269,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [DESK] = LAYOUT_split_3x6_3(
         KC_NO,   KC_BTN3,    LGUI(KC_2), LGUI(KC_3), LGUI(KC_4), LGUI(KC_5),   LGUI(KC_6), LGUI(KC_7), LGUI(KC_8), LCTL(KC_9), KC_NO,          KC_NO,
-        KC_LSFT, LGUI(KC_1), LGUI(KC_0), SWAP_AT,    LGUI(KC_W), LGUI(KC_6),   LGUI(KC_1), LALT(KC_H), LALT(KC_W), LALT(KC_L), LGUI(KC_5),     KC_NO,
-        KC_NO,   KC_NO,      LGUI(KC_E), KC_F18,     LGUI(KC_J), LGUI(KC_7),   LGUI(KC_6), KC_VOLD,    KC_VOLU,    LALT(KC_L), LALT(KC_COMM), KC_NO,
+        KC_LSFT, LGUI(KC_1), LGUI(KC_0), KC_F18,     LGUI(KC_W), LGUI(KC_6),   LGUI(KC_1), LALT(KC_H), LALT(KC_W), LALT(KC_L), LGUI(KC_5),     KC_NO,
+        KC_NO,   KC_NO,      LGUI(KC_E), SWAP_AT,    LGUI(KC_J), LGUI(KC_7),   LGUI(KC_6), KC_VOLD,    KC_VOLU,    LALT(KC_L), LALT(KC_COMM), KC_NO,
                           LGUI(KC_D), LGUI(KC_A), LGUI(KC_D),   OSM(MOD_LSFT), LALT(KC_A), KC_DEL),
 
     [CTL] = LAYOUT_split_3x6_3(
