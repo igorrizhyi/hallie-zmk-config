@@ -18,8 +18,7 @@ enum custom_keycodes {
     TO_ENG,               // Ctrl+Shift+2 + switch to the base layer
     SWAP_CT,              // Ctrl+Tab, Ctrl held across presses
     SWAP_CST,             // Ctrl+Shift+Tab, Ctrl held across presses
-    SWAP_AT,              // Alt+Tab, Alt held across presses, silent quick tap
-    SWAP_ATR,             // the same, paced so it survives RDP (blinks)
+    SWAP_AT,              // Alt+Tab, Alt held across presses
     DOT_COM,              // types . ; with shift held types , instead
     MOU_SMT,              // hold = mouse layer, tap = toggle mouse layer
     MOU_FST,              // held: cursor at 2x, mirroring the Hallie FAST layer
@@ -50,13 +49,10 @@ _Static_assert(MOU_SPEED_BASE == MOUSEKEY_MAX_SPEED,
 // on the Hallie, including the pacing that keeps remote desktop sessions
 // from seeing Tab before the modifier.
 // ---------------------------------------------------------------------
-// Alt/Ctrl go down this long before Tab, and Tab is held this long.
-// The fast pacing keeps a quick tap's total modifier-down time under the
-// ~100 ms the Windows switcher needs to paint, so flipping between two
-// tasks is silent while HOLDING the key still raises the previews. The RDP
-// pacing blinks, but a laggy host cannot see Tab before the modifier.
-#define SWAP_LEAD_FAST_MS 15
-#define SWAP_TAB_FAST_MS  15
+// The modifier leads Tab by 90 ms so a laggy host cannot see Tab first.
+// Shortening this does NOT hide the Windows switcher: it paints on the Tab
+// press itself, not after a delay (tested at 15 ms, still blinked). The
+// silent flip is KC_F18 instead -- see the DESK layer.
 #define SWAP_LEAD_RDP_MS  90
 #define SWAP_TAB_RDP_MS   30
 
@@ -176,11 +172,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
         case SWAP_AT:
             if (record->event.pressed) swap_step(&alt_swap_active, KC_LALT, false,
-                                                 SWAP_LEAD_FAST_MS, SWAP_TAB_FAST_MS);
-            return false;
-
-        case SWAP_ATR:
-            if (record->event.pressed) swap_step(&alt_swap_active, KC_LALT, false,
                                                  SWAP_LEAD_RDP_MS, SWAP_TAB_RDP_MS);
             return false;
 
@@ -278,8 +269,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [DESK] = LAYOUT_split_3x6_3(
         KC_NO,   KC_BTN3,    LGUI(KC_2), LGUI(KC_3), LGUI(KC_4), LGUI(KC_5),   LGUI(KC_6), LGUI(KC_7), LGUI(KC_8), LCTL(KC_9), KC_NO,          KC_NO,
-        KC_LSFT, LGUI(KC_1), LGUI(KC_0), SWAP_ATR,   LGUI(KC_W), LGUI(KC_6),   LGUI(KC_1), LALT(KC_H), LALT(KC_W), LALT(KC_L), LGUI(KC_5),     KC_NO,
-        KC_NO,   KC_NO,      LGUI(KC_E), SWAP_AT,    LGUI(KC_J), LGUI(KC_7),   LGUI(KC_6), KC_VOLD,    KC_VOLU,    LALT(KC_L), LALT(KC_COMM), KC_NO,
+        KC_LSFT, LGUI(KC_1), LGUI(KC_0), SWAP_AT,    LGUI(KC_W), LGUI(KC_6),   LGUI(KC_1), LALT(KC_H), LALT(KC_W), LALT(KC_L), LGUI(KC_5),     KC_NO,
+        KC_NO,   KC_NO,      LGUI(KC_E), KC_F18,     LGUI(KC_J), LGUI(KC_7),   LGUI(KC_6), KC_VOLD,    KC_VOLU,    LALT(KC_L), LALT(KC_COMM), KC_NO,
                           LGUI(KC_D), LGUI(KC_A), LGUI(KC_D),   OSM(MOD_LSFT), LALT(KC_A), KC_DEL),
 
     [CTL] = LAYOUT_split_3x6_3(
